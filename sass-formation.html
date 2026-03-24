@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SASS — Formation URT</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E2C46A;
+  --blue: #1A3A7C;
+  --blue-dark: #0D1B3E;
+  --blue-accent: #2A5FD4;
+  --bg: #07101F;
+  --card: #0C1829;
+  --border: rgba(201,168,76,0.2);
+  --border-b: rgba(42,95,212,0.25);
+  --text: #D8E4F0;
+  --muted: #6A7FA0;
+  --green: #27AE60;
+  --orange: #E67E22;
+  --red: #C0392B;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Rajdhani',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* HEADER */
+.header {
+  background:var(--blue-dark);
+  border-bottom:1px solid var(--border);
+  padding:20px 40px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+.logo-svg { width:72px; height:72px; flex-shrink:0; }
+.header-text { flex:1; }
+.h-org { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--gold); margin-bottom:4px; }
+.h-title { font-family:'Cinzel',serif; font-size:22px; font-weight:900; letter-spacing:1px; color:#fff; }
+.h-sub { font-size:12px; color:var(--muted); margin-top:3px; letter-spacing:1px; }
+.h-right { font-family:'Share Tech Mono',monospace; text-align:right; font-size:11px; color:var(--muted); line-height:1.8; }
+.h-right strong { color:var(--gold); font-size:14px; display:block; }
+
+/* MAIN */
+.main { max-width:1060px; margin:0 auto; padding:28px 32px; }
+
+/* IDENTITY */
+.identity {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;
+  margin-bottom:20px;
+  background:var(--card); border:1px solid var(--border-b); border-left:2px solid var(--gold);
+  border-radius:3px; padding:18px 22px;
+}
+.field label { display:block; font-size:9px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; font-family:'Share Tech Mono',monospace; margin-bottom:5px; }
+.field input {
+  width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border-b); border-radius:2px;
+  padding:8px 12px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:500; outline:none; transition:border-color .2s;
+}
+.field input:focus { border-color:var(--gold); }
+.field input::placeholder { color:var(--muted); opacity:.5; }
+
+/* SCORE BAR */
+.scorebar {
+  background:var(--card); border:1px solid var(--border); border-radius:3px;
+  padding:18px 22px; margin-bottom:20px;
+  display:flex; align-items:center; gap:24px;
+}
+.sb-num { font-family:'Cinzel',serif; font-size:44px; font-weight:900; color:var(--gold-light); line-height:1; min-width:88px; text-align:center; }
+.sb-num span { font-size:16px; color:var(--muted); }
+.sb-mid { flex:1; }
+.sb-track { height:7px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-bottom:6px; border:1px solid var(--border-b); }
+.sb-fill { height:100%; border-radius:4px; background:linear-gradient(90deg, var(--blue-accent), var(--gold)); transition:width .4s ease; width:0%; }
+.sb-labels { display:flex; justify-content:space-between; font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; }
+.sb-verdict { font-family:'Cinzel',serif; font-size:13px; font-weight:700; letter-spacing:2px; padding:9px 18px; border-radius:2px; border:1px solid; min-width:148px; text-align:center; transition:all .3s; }
+.v-pending { color:var(--muted); border-color:var(--border-b); }
+.v-apte { color:var(--green); border-color:var(--green); background:rgba(39,174,96,.08); }
+.v-renforcer { color:var(--orange); border-color:var(--orange); background:rgba(230,126,34,.08); }
+.v-non { color:var(--red); border-color:var(--red); background:rgba(192,57,43,.08); }
+
+/* MODULES GRID */
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.card { background:var(--card); border:1px solid var(--border-b); border-radius:3px; overflow:hidden; }
+.card-head { padding:11px 18px; background:rgba(26,58,124,0.35); border-bottom:1px solid var(--border-b); display:flex; justify-content:space-between; align-items:center; }
+.ch-num { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); letter-spacing:3px; }
+.ch-title { font-family:'Cinzel',serif; font-size:12px; font-weight:700; color:var(--text); letter-spacing:.5px; margin-top:2px; }
+.ch-score { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--gold-light); background:rgba(201,168,76,0.08); border:1px solid var(--border); border-radius:2px; padding:2px 10px; }
+.card-body { padding:13px 18px; }
+.criteria { display:flex; flex-direction:column; gap:0; }
+.crit { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.crit:last-child { border-bottom:none; }
+.crit-name { flex:1; font-size:13px; font-weight:500; line-height:1.3; }
+.crit-max { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); white-space:nowrap; }
+.ctrl { display:flex; align-items:center; gap:5px; }
+.btn { width:24px; height:24px; border-radius:2px; border:1px solid var(--border-b); background:rgba(255,255,255,0.03); color:var(--text); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; font-family:'Rajdhani',sans-serif; line-height:1; flex-shrink:0; }
+.btn:hover { background:rgba(201,168,76,.12); border-color:var(--gold); color:var(--gold-light); }
+.btn.m:hover { background:rgba(192,57,43,.12); border-color:var(--red); color:var(--red); }
+.val { font-family:'Share Tech Mono',monospace; font-size:14px; font-weight:700; color:var(--gold-light); min-width:18px; text-align:center; }
+.comment-area { margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,0.04); }
+.comment-area label { font-size:9px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; font-family:'Share Tech Mono',monospace; display:block; margin-bottom:5px; }
+.comment-area textarea { width:100%; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:2px; padding:7px 10px; font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--text); resize:vertical; min-height:44px; outline:none; transition:border-color .2s; }
+.comment-area textarea:focus { border-color:rgba(201,168,76,.4); }
+.comment-area textarea::placeholder { color:var(--muted); opacity:.4; }
+.full { grid-column:1/-1; }
+.m7-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.m7-cell { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:2px; padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+.m7-cell .crit-name { font-size:12px; }
+.m7-cell .ctrl { justify-content:flex-end; }
+
+/* BOTTOM */
+.bottom { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.info-card { background:var(--card); border:1px solid var(--border-b); border-radius:3px; padding:16px 20px; }
+.info-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.info-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+.info-list li { font-size:13px; font-weight:500; color:var(--text); display:flex; align-items:flex-start; gap:8px; }
+.info-list li::before { content:'▸'; color:var(--gold); font-size:11px; flex-shrink:0; margin-top:1px; }
+
+/* EXPORT */
+.export-wrap { text-align:center; padding-bottom:32px; }
+.btn-export { font-family:'Cinzel',serif; font-size:12px; font-weight:700; letter-spacing:3px; color:var(--blue-dark); background:linear-gradient(135deg,var(--gold),var(--gold-light) 50%,var(--gold)); border:none; padding:13px 44px; border-radius:2px; cursor:pointer; transition:all .2s; box-shadow:0 2px 16px rgba(201,168,76,.2); }
+.btn-export:hover { box-shadow:0 4px 24px rgba(201,168,76,.35); transform:translateY(-1px); }
+.btn-export:active { transform:translateY(0); }
+
+@keyframes bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.bump { animation:bump .18s ease; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <!-- LOGO SVG généré -->
+  <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg-grad" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#C8D8E8"/>
+        <stop offset="100%" stop-color="#7A8A9A"/>
+      </radialGradient>
+      <linearGradient id="gold-g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#E8C96A"/>
+        <stop offset="50%" stop-color="#C9A84C"/>
+        <stop offset="100%" stop-color="#8B6914"/>
+      </linearGradient>
+    </defs>
+    <!-- Cercle extérieur bleu -->
+    <circle cx="50" cy="50" r="48" fill="#1A3A7C"/>
+    <!-- Bordure or -->
+    <circle cx="50" cy="50" r="48" fill="none" stroke="#C9A84C" stroke-width="2.5"/>
+    <!-- Disque argenté intérieur -->
+    <circle cx="50" cy="50" r="36" fill="url(#bg-grad)"/>
+    <circle cx="50" cy="50" r="36" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+    <!-- Étoile 5 branches -->
+    <polygon points="50,16 55.9,33.8 74.5,33.8 60.3,44.2 65.9,62 50,51.6 34.1,62 39.7,44.2 25.5,33.8 44.1,33.8" fill="url(#gold-g)" stroke="#8B6914" stroke-width="0.8"/>
+    <!-- Cercle centre bleu -->
+    <circle cx="50" cy="44" r="12" fill="#1A3A7C" stroke="#C9A84C" stroke-width="1.2"/>
+    <!-- Texte SA -->
+    <text x="50" y="48" font-family="Georgia,serif" font-size="9" font-weight="bold" fill="#C9A84C" text-anchor="middle" dominant-baseline="middle">SA</text>
+    <!-- Lauriers gauche (feuilles) -->
+    <g fill="#C9A84C" opacity="0.9">
+      <ellipse cx="24" cy="64" rx="5" ry="2.2" transform="rotate(-50,24,64)"/>
+      <ellipse cx="20" cy="69" rx="5" ry="2.2" transform="rotate(-60,20,69)"/>
+      <ellipse cx="18" cy="75" rx="4.5" ry="2" transform="rotate(-70,18,75)"/>
+      <ellipse cx="23" cy="73" rx="4" ry="1.8" transform="rotate(-40,23,73)"/>
+      <ellipse cx="28" cy="77" rx="4" ry="1.8" transform="rotate(-30,28,77)"/>
+    </g>
+    <!-- Lauriers droite -->
+    <g fill="#C9A84C" opacity="0.9">
+      <ellipse cx="76" cy="64" rx="5" ry="2.2" transform="rotate(50,76,64)"/>
+      <ellipse cx="80" cy="69" rx="5" ry="2.2" transform="rotate(60,80,69)"/>
+      <ellipse cx="82" cy="75" rx="4.5" ry="2" transform="rotate(70,82,75)"/>
+      <ellipse cx="77" cy="73" rx="4" ry="1.8" transform="rotate(40,77,73)"/>
+      <ellipse cx="72" cy="77" rx="4" ry="1.8" transform="rotate(30,72,77)"/>
+    </g>
+    <!-- Tige centrale lauriers -->
+    <path d="M42,80 Q50,83 58,80" fill="none" stroke="#C9A84C" stroke-width="1.2" opacity="0.8"/>
+  </svg>
+
+  <div class="header-text">
+    <div class="h-org">SAN ANDREAS SECRET SERVICE</div>
+    <div class="h-title">PANEL DE FORMATION — URT</div>
+    <div class="h-sub">Unité de Réponse Tactique &nbsp;·&nbsp; "Voir sans être vu, protéger sans faillir."</div>
+  </div>
+  <div class="h-right">
+    <strong>URT-F01</strong>
+    Durée totale : 2h30<br>
+    Total : 50 pts
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="identity">
+    <div class="field"><label for="trainee">Nom du stagiaire</label><input id="trainee" type="text" placeholder="Ex : John Doe"></div>
+    <div class="field"><label for="trainer">Formateur</label><input id="trainer" type="text" placeholder="Ex : Agent Carter"></div>
+    <div class="field"><label for="sdate">Date</label><input id="sdate" type="date"></div>
+  </div>
+
+  <div class="scorebar">
+    <div class="sb-num" id="total">0<span> / 50</span></div>
+    <div class="sb-mid">
+      <div class="sb-track"><div class="sb-fill" id="fill"></div></div>
+      <div class="sb-labels"><span>0</span><span>SEUIL APTE : 35 pts</span><span>50</span></div>
+    </div>
+    <div class="sb-verdict v-pending" id="verdict">EN COURS</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 01 · 20 MIN</div><div class="ch-title">Doctrine & Rôle</div></div><div class="ch-score"><span id="s-m1">0</span> / 8</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Mission — Protéger le VIP</span><span class="crit-max">/ 1</span><div class="ctrl"><button class="btn m" onclick="adj('m1c1',-1)">−</button><span class="val" id="m1c1">0</span><button class="btn" onclick="adj('m1c1',1,1)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Discipline, discrétion & hiérarchie</span><span class="crit-max">/ 5</span><div class="ctrl"><button class="btn m" onclick="adj('m1c2',-1)">−</button><span class="val" id="m1c2">0</span><button class="btn" onclick="adj('m1c2',1,5)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Bulle de sécurité</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m1c3',-1)">−</button><span class="val" id="m1c3">0</span><button class="btn" onclick="adj('m1c3',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m1" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 02 · 40 MIN</div><div class="ch-title">Protection Rapprochée</div></div><div class="ch-score"><span id="s-m2">0</span> / 10</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Formations diamant / boîte / couloir</span><span class="crit-max">/ 4</span><div class="ctrl"><button class="btn m" onclick="adj('m2c1',-1)">−</button><span class="val" id="m2c1">0</span><button class="btn" onclick="adj('m2c1',1,4)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Surveillance 360°</span><span class="crit-max">/ 4</span><div class="ctrl"><button class="btn m" onclick="adj('m2c2',-1)">−</button><span class="val" id="m2c2">0</span><button class="btn" onclick="adj('m2c2',1,4)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Gestion de foule</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m2c3',-1)">−</button><span class="val" id="m2c3">0</span><button class="btn" onclick="adj('m2c3',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m2" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 03 · 30 MIN</div><div class="ch-title">Conduite & Déplacement</div></div><div class="ch-score"><span id="s-m3">0</span> / 8</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Conduite de convoi</span><span class="crit-max">/ 3</span><div class="ctrl"><button class="btn m" onclick="adj('m3c1',-1)">−</button><span class="val" id="m3c1">0</span><button class="btn" onclick="adj('m3c1',1,3)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Anticipation des risques</span><span class="crit-max">/ 3</span><div class="ctrl"><button class="btn m" onclick="adj('m3c2',-1)">−</button><span class="val" id="m3c2">0</span><button class="btn" onclick="adj('m3c2',1,3)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Réaction aux incidents</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m3c3',-1)">−</button><span class="val" id="m3c3">0</span><button class="btn" onclick="adj('m3c3',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m3" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 04 · 20 MIN</div><div class="ch-title">Communication Radio</div></div><div class="ch-score"><span id="s-m4">0</span> / 6</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Messages courts et clairs</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m4c1',-1)">−</button><span class="val" id="m4c1">0</span><button class="btn" onclick="adj('m4c1',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Respect du format Qui / Où / Quoi</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m4c2',-1)">−</button><span class="val" id="m4c2">0</span><button class="btn" onclick="adj('m4c2',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Bonne utilisation des calls</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m4c3',-1)">−</button><span class="val" id="m4c3">0</span><button class="btn" onclick="adj('m4c3',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m4" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 05 · 25 MIN</div><div class="ch-title">Gestion de Crise</div></div><div class="ch-score"><span id="s-m5">0</span> / 8</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Protection immédiate du VIP</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m5c1',-1)">−</button><span class="val" id="m5c1">0</span><button class="btn" onclick="adj('m5c1',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Mise à couvert</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m5c2',-1)">−</button><span class="val" id="m5c2">0</span><button class="btn" onclick="adj('m5c2',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Evaluer la menace</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m5c3',-1)">−</button><span class="val" id="m5c3">0</span><button class="btn" onclick="adj('m5c3',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Extraction rapide ou securisation</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m5c4',-1)">−</button><span class="val" id="m5c4">0</span><button class="btn" onclick="adj('m5c4',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m5" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><div class="ch-num">MOD. 06 · 15 MIN</div><div class="ch-title">Secourisme Tactique</div></div><div class="ch-score"><span id="s-m6">0</span> / 4</div></div>
+      <div class="card-body">
+        <div class="criteria">
+          <div class="crit"><span class="crit-name">Mise en sécurité</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m6c1',-1)">−</button><span class="val" id="m6c1">0</span><button class="btn" onclick="adj('m6c1',1,2)">+</button></div></div>
+          <div class="crit"><span class="crit-name">Transmission EMS rapide</span><span class="crit-max">/ 2</span><div class="ctrl"><button class="btn m" onclick="adj('m6c2',-1)">−</button><span class="val" id="m6c2">0</span><button class="btn" onclick="adj('m6c2',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations</label><textarea id="c-m6" placeholder="Remarques sur ce module…"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-head"><div><div class="ch-num">MOD. 07 · 20 MIN — EXERCICE FINAL</div><div class="ch-title">Mise en Situation Complète</div></div><div class="ch-score"><span id="s-m7">0</span> / 6</div></div>
+      <div class="card-body">
+        <div class="m7-grid">
+          <div class="m7-cell"><span class="crit-name">Coordination d'équipe</span><div class="ctrl"><span class="crit-max">/ 2</span><button class="btn m" onclick="adj('m7c1',-1)">−</button><span class="val" id="m7c1">0</span><button class="btn" onclick="adj('m7c1',1,2)">+</button></div></div>
+          <div class="m7-cell"><span class="crit-name">Réactivité globale</span><div class="ctrl"><span class="crit-max">/ 2</span><button class="btn m" onclick="adj('m7c2',-1)">−</button><span class="val" id="m7c2">0</span><button class="btn" onclick="adj('m7c2',1,2)">+</button></div></div>
+          <div class="m7-cell"><span class="crit-name">Respect des procédures</span><div class="ctrl"><span class="crit-max">/ 2</span><button class="btn m" onclick="adj('m7c3',-1)">−</button><span class="val" id="m7c3">0</span><button class="btn" onclick="adj('m7c3',1,2)">+</button></div></div>
+        </div>
+        <div class="comment-area"><label>Observations générales</label><textarea id="c-m7" placeholder="Bilan global de l'exercice final…" style="min-height:60px"></textarea></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom">
+    <div class="info-card">
+      <div class="info-title">Règles de conduite</div>
+      <ul class="info-list">
+        <li>Calme et discipline en toutes circonstances</li>
+        <li>Communication claire et concise</li>
+        <li>Travail d'équipe et cohésion</li>
+        <li>Respect strict des ordres hiérarchiques</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <div class="info-title">Critères d'évaluation</div>
+      <ul class="info-list">
+        <li>Réactivité face aux situations</li>
+        <li>Qualité de la communication radio</li>
+        <li>Respect des procédures opérationnelles</li>
+        <li>Score ≥ 35 pts → <strong style="color:var(--green)">APTE</strong> &nbsp;/&nbsp; &lt; 35 pts → <strong style="color:var(--red)">NON APTE</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="export-wrap">
+    <button class="btn-export" onclick="exportPDF()">⬡ &nbsp; EXPORTER LE RAPPORT EN PDF</button>
+  </div>
+
+</main>
+
+<script>
+const S={m1c1:0,m1c2:0,m1c3:0,m2c1:0,m2c2:0,m2c3:0,m3c1:0,m3c2:0,m3c3:0,m4c1:0,m4c2:0,m4c3:0,m5c1:0,m5c2:0,m5c3:0,m5c4:0,m6c1:0,m6c2:0,m7c1:0,m7c2:0,m7c3:0};
+const MAX={m1c1:1,m1c2:5,m1c3:2,m2c1:4,m2c2:4,m2c3:2,m3c1:3,m3c2:3,m3c3:2,m4c1:2,m4c2:2,m4c3:2,m5c1:2,m5c2:2,m5c3:2,m5c4:2,m6c1:2,m6c2:2,m7c1:2,m7c2:2,m7c3:2};
+const MODS={m1:['m1c1','m1c2','m1c3'],m2:['m2c1','m2c2','m2c3'],m3:['m3c1','m3c2','m3c3'],m4:['m4c1','m4c2','m4c3'],m5:['m5c1','m5c2','m5c3','m5c4'],m6:['m6c1','m6c2'],m7:['m7c1','m7c2','m7c3']};
+const MMAX={m1:8,m2:10,m3:8,m4:6,m5:8,m6:4,m7:6};
+const MNAMES={m1:'Doctrine & Role',m2:'Protection Rapprochee',m3:'Conduite & Deplacement',m4:'Communication Radio',m5:'Gestion de Crise',m6:'Secourisme Tactique',m7:'Exercice Final'};
+const MDUR={m1:'20 min',m2:'40 min',m3:'30 min',m4:'20 min',m5:'25 min',m6:'15 min',m7:'20 min'};
+const CNAMES={m1c1:'Mission - Proteger le VIP',m1c2:'Discipline, discretion & hierarchie',m1c3:'Bulle de securite',m2c1:'Formations diamant/boite/couloir',m2c2:'Surveillance 360',m2c3:'Gestion de foule',m3c1:'Conduite de convoi',m3c2:'Anticipation des risques',m3c3:'Reaction aux incidents',m4c1:'Messages courts et clairs',m4c2:'Format Qui/Ou/Quoi',m4c3:'Utilisation des calls',m5c1:'Protection immediate du VIP',m5c2:'Mise a couvert',m5c3:'Evaluer la menace',m5c4:'Extraction rapide',m6c1:'Mise en securite',m6c2:'Transmission EMS rapide',m7c1:"Coordination d'equipe",m7c2:'Reactivite globale',m7c3:'Respect des procedures'};
+
+function adj(id,d,mx){
+  const m=mx||MAX[id];
+  S[id]=Math.max(0,Math.min(m,S[id]+d));
+  document.getElementById(id).textContent=S[id];
+  update();
+}
+function update(){
+  for(const[mod,cs]of Object.entries(MODS)) document.getElementById('s-'+mod).textContent=cs.reduce((a,c)=>a+S[c],0);
+  const t=Object.values(S).reduce((a,b)=>a+b,0);
+  const el=document.getElementById('total');
+  el.innerHTML=t+'<span> / 50</span>';
+  el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');
+  document.getElementById('fill').style.width=(t/50*100)+'%';
+  const v=document.getElementById('verdict');
+  v.className='sb-verdict';
+  if(t>=35){v.classList.add('v-apte');v.textContent='APTE';}
+  else if(t>=25){v.classList.add('v-renforcer');v.textContent='A RENFORCER';}
+  else{v.classList.add('v-non');v.textContent='NON APTE';}
+}
+
+function exportPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,M=16;
+  let y=0;
+  const gold=[201,168,76],blue=[26,58,124],dark=[10,22,48],white=[255,255,255],gray=[180,200,220],muted=[120,140,170],green=[39,174,96],orange=[230,126,34],red=[192,57,43];
+
+  function r(x,yw,w,h,col){doc.setFillColor(...col);doc.rect(x,yw,w,h,'F');}
+  function t(text,x,yw,size,col,style='normal',align='left'){doc.setFontSize(size);doc.setTextColor(...col);doc.setFont('helvetica',style);doc.text(String(text),x,yw,{align});}
+  function ln(x1,y1,x2,y2,col,lw=0.25){doc.setDrawColor(...col);doc.setLineWidth(lw);doc.line(x1,y1,x2,y2);}
+  function brd(x,yw,w,h,col,lw=0.3){doc.setDrawColor(...col);doc.setLineWidth(lw);doc.rect(x,yw,w,h,'S');}
+
+  // HEADER
+  r(0,0,W,36,dark);
+  r(0,0,W,1.5,gold);
+
+  // Logo simplifié dans PDF
+  doc.setFillColor(...blue);doc.circle(M+8,18,7.5,'F');
+  doc.setDrawColor(...gold);doc.setLineWidth(0.8);doc.circle(M+8,18,7.5,'S');
+  // étoile simplifiée — triangle + losange approximé
+  doc.setFillColor(...gold);
+  const cx=M+8,cy=18,pts=[];
+  for(let i=0;i<10;i++){const a=(i*36-90)*Math.PI/180;const rad=i%2===0?6:2.5;pts.push([cx+rad*Math.cos(a),cy+rad*Math.sin(a)]);}
+  doc.setFillColor(...gold);doc.setDrawColor(139,105,20);doc.setLineWidth(0.1);
+  doc.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)doc.lineTo(pts[i][0],pts[i][1]);
+  doc.lineTo(pts[0][0],pts[0][1]);
+  doc.setFillColor(...gold);
+  // draw as filled polygon via lines
+  const diffs=pts.slice(1).map((p,i)=>[p[0]-pts[i][0],p[1]-pts[i][1]]);
+  doc.lines(diffs,pts[0][0],pts[0][1],[1,1],'FD',true);
+
+  t('SAN ANDREAS SECRET SERVICE',M+20,10,8,gold,'bold');
+  t('RAPPORT DE FORMATION URT',M+20,17,14,white,'bold');
+  t('Unite de Reponse Tactique  |  Voir sans etre vu, proteger sans faillir.',M+20,23,7,muted);
+  t('URT-F01  |  50 pts max',W-M,10,7,gold,'bold','right');
+
+  y=42;
+
+  // IDENTITE
+  const trainee=document.getElementById('trainee').value||'Non renseigne';
+  const trainer=document.getElementById('trainer').value||'Non renseigne';
+  const dv=document.getElementById('sdate').value;
+  const ds=dv?new Date(dv).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}):'Non renseignee';
+
+  r(M,y,W-M*2,16,dark);brd(M,y,W-M*2,16,gold,0.4);r(M,y,1.5,16,gold);
+  const cW=(W-M*2-1.5)/3;
+  [[`Stagiaire`,trainee,M+5],[`Formateur`,trainer,M+5+cW],[`Date`,ds,M+5+cW*2]].forEach(([lbl,val,x],i)=>{
+    t(lbl,x,y+6,6,[150,170,200],'normal');
+    t(val,x,y+12,8,white,'bold');
+    if(i<2)ln(M+1.5+cW*(i+1),y+2,M+1.5+cW*(i+1),y+14,blue,0.3);
+  });
+
+  y+=22;
+
+  // SCORE
+  const total=Object.values(S).reduce((a,b)=>a+b,0);
+  const verdictTxt=total>=35?'APTE':total>=25?'A RENFORCER':'NON APTE';
+  const verdictCol=total>=35?green:total>=25?orange:red;
+
+  r(M,y,W-M*2,13,dark);brd(M,y,W-M*2,13,[100,130,180],0.3);
+  t('SCORE FINAL',M+5,y+6,7,muted,'bold');
+  t(`${total} / 50 pts`,M+5,y+11.5,11,white,'bold');
+  // progress bar
+  const bx=M+42,by=y+7.5,bw=78,bh=3.5;
+  r(bx,by,bw,bh,[25,45,75]);
+  r(bx,by,bw*(total/50),bh,gold);
+  brd(bx,by,bw,bh,muted,0.2);
+  t(`${Math.round(total/50*100)}%`,bx+bw+3,by+3,7,muted);
+  // verdict
+  r(W-M-32,y+1.5,30,10,verdictCol.map(c=>c*0.15));
+  brd(W-M-32,y+1.5,30,10,verdictCol,0.5);
+  t(verdictTxt,W-M-32+15,y+7.5,8,verdictCol,'bold','center');
+
+  y+=19;
+
+  // MODULES
+  for(const mk of['m1','m2','m3','m4','m5','m6','m7']){
+    const cs=MODS[mk];
+    const ms=cs.reduce((a,c)=>a+S[c],0);
+    const mm=MMAX[mk];
+    const comment=document.getElementById('c-'+mk).value.trim();
+    const rowsH=cs.length*8+14+(comment?12:0);
+    if(y+rowsH>275){doc.addPage();y=16;}
+
+    // Module header
+    r(M,y,W-M*2,10,blue);brd(M,y,W-M*2,10,gold,0.3);
+    t(`MODULE  |  ${MNAMES[mk].toUpperCase()}  (${MDUR[mk]})`,M+5,y+7,7.5,white,'bold');
+    t(`${ms} / ${mm}`,W-M-5,y+7,8,gold,'bold','right');
+    y+=12;
+
+    // Criteria
+    for(const c of cs){
+      if(y>278){doc.addPage();y=16;}
+      r(M,y,W-M*2,8,[10,20,40]);
+      ln(M,y+8,M+W-M*2,y+8,[25,45,75]);
+      t(CNAMES[c],M+5,y+5.5,7,gray);
+      t(`${S[c]} / ${MAX[c]}`,W-M-5,y+5.5,8,gold,'bold','right');
+      y+=8;
+    }
+
+    // Comment
+    if(comment){
+      if(y>275){doc.addPage();y=16;}
+      r(M,y,W-M*2,11,[8,16,32]);brd(M,y,W-M*2,11,[30,50,80],0.2);
+      t('Obs. :',M+5,y+4.5,6,muted,'italic');
+      t(comment.length>110?comment.substring(0,107)+'...':comment,M+5,y+9,6.5,[160,190,220],'italic');
+      y+=13;
+    }
+    y+=4;
+  }
+
+  // VERDICT FINAL
+  if(y+26>278){doc.addPage();y=16;}
+  y+=3;
+  r(M,y,W-M*2,20,dark);
+  r(M,y,W-M*2,1.5,...([verdictCol]));
+  brd(M,y,W-M*2,20,verdictCol,0.5);
+  t('VERDICT FINAL',W/2,y+9,8,muted,'bold','center');
+  t(verdictTxt,W/2,y+17,15,verdictCol,'bold','center');
+
+  // FOOTER
+  ln(M,286,W-M,286,gold,0.3);
+  t('SAN ANDREAS SECRET SERVICE  —  Document officiel URT',W/2,290,6,muted,'normal','center');
+  t(`Score final : ${total}/50  |  ${verdictTxt}`,W/2,294,6,gold,'bold','center');
+
+  const n=(document.getElementById('trainee').value||'Stagiaire').replace(/\s+/g,'_');
+  doc.save(`SASS_Formation_URT_${n}.pdf`);
+}
+
+update();
+document.getElementById('sdate').valueAsDate=new Date();
+</script>
+</body>
+</html>

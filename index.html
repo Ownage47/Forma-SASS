@@ -159,6 +159,12 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
 .pill-refuse{color:var(--red);border-color:rgba(192,57,43,.4);}
 .pill-refuse.active,.pill-refuse:hover{background:rgba(192,57,43,.12);border-color:var(--red);}
 
+/* EDIT MODE INDICATOR */
+.edit-banner{background:rgba(42,95,212,.12);border:1px solid rgba(42,95,212,.4);border-radius:2px;padding:8px 14px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--blue-a);}
+.edit-banner.visible{display:flex;}
+.edit-banner button{background:none;border:1px solid rgba(42,95,212,.4);color:var(--blue-a);padding:3px 10px;border-radius:2px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;transition:all .2s;}
+.edit-banner button:hover{border-color:var(--red);color:var(--red);}
+
 /* HISTORIQUE + ENTRETIEN LIST */
 .list-empty{text-align:center;padding:44px 0;color:var(--muted);font-size:13px;letter-spacing:2px;font-family:'Share Tech Mono',monospace;}
 .item-row{background:var(--card);border:1px solid var(--brd-b);border-radius:3px;padding:13px 18px;display:flex;align-items:center;gap:14px;transition:border-color .2s;margin-bottom:10px;}
@@ -191,7 +197,6 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
 
 <header class="header">
   <img src="logo SASS.png" alt="SASS" class="logo" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'">
-  <!-- Fallback SVG si le PNG est absent -->
   <svg id="logo-fallback" style="display:none;width:66px;height:66px;flex-shrink:0;" viewBox="0 0 100 100">
     <defs>
       <linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8C96A"/><stop offset="100%" stop-color="#8B6914"/></linearGradient>
@@ -386,6 +391,13 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
 
     <div class="block">
       <div class="block-title">Nouveau candidat — Entretien</div>
+
+      <!-- ✅ FIX : bandeau de mode édition visible -->
+      <div class="edit-banner" id="edit-banner">
+        <span>✎ &nbsp;MODE MODIFICATION — entretien en cours d'édition</span>
+        <button onclick="clearEntretienForm()">✕ Annuler</button>
+      </div>
+
       <div class="row-3" style="margin-bottom:14px;">
         <div class="field"><label for="e-nom">Nom du candidat</label><input id="e-nom" type="text" placeholder="Ex : John Doe"></div>
         <div class="field"><label for="e-date">Date de l'entretien</label><input id="e-date" type="date"></div>
@@ -404,9 +416,10 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
         <label for="e-notes">Notes d'entretien</label>
         <textarea id="e-notes" placeholder="Observations, points forts, points faibles, comportement, motivations…" style="min-height:110px;"></textarea>
       </div>
+      <!-- ✅ FIX : hidden field pour stocker l'ID en édition -->
       <input type="hidden" id="e-edit-id" value="">
       <div class="action-bar" style="padding-bottom:0;justify-content:flex-start;">
-        <button class="btn-gold" onclick="saveEntretien()">⬆ &nbsp;ENREGISTRER</button>
+        <button class="btn-gold" onclick="saveEntretien()"><span id="e-save-label">⬆ &nbsp;ENREGISTRER</span></button>
         <button class="btn-outline" onclick="clearEntretienForm()">Effacer</button>
       </div>
     </div>
@@ -453,6 +466,10 @@ const CNAMES={m1c1:'Mission - Proteger le VIP',m1c2:'Discipline, discretion & hi
 
 let fbReady=false, sigData=null, autoSaveTimer=null;
 let eCurrentFilter='tous', allEntretiens=[];
+
+// ══ STORE ENTRETIENS EN MEMOIRE (pour éviter double-stringify) ══
+// ✅ FIX : on stocke les objets directement dans une Map indexée par id
+const entretienMap = new Map();
 
 // ══ FIREBASE READY ══
 window.addEventListener('fb-ready',()=>{
@@ -516,22 +533,27 @@ function onTraineeSelect(){
   document.getElementById('trainee').value=sel.value;
   autoSave();
 }
-async function loadValidatedCandidates(){
-  if(!fbReady) return;
-  try{
-    const q=window._q(window._col(window._db,'entretiens'),window._where('status','==','valide'),window._ord('savedAt','desc'));
-    const snap=await window._gets(q);
-    const sel=document.getElementById('trainee-select');
-    // keep first option
-    sel.innerHTML='<option value="">— Sélectionner un candidat validé —</option>';
-    snap.forEach(d=>{
-      const data=d.data();
-      const opt=document.createElement('option');
-      opt.value=data.nom;
-      opt.textContent=data.nom+(data.date?' (entretien '+new Date(data.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})+')'  :'');
-      sel.appendChild(opt);
-    });
-  }catch(e){}
+
+// ✅ FIX : loadValidatedCandidates utilise maintenant allEntretiens déjà chargés
+// pour éviter la requête composite (where + orderBy) qui exige un index Firestore.
+// On filtre côté client sur status === 'valide'.
+function loadValidatedCandidates(){
+  const sel=document.getElementById('trainee-select');
+  const current=document.getElementById('trainee').value;
+  sel.innerHTML='<option value="">— Sélectionner un candidat validé —</option>';
+
+  const validated=allEntretiens.filter(d=>d.status==='valide');
+  validated.forEach(d=>{
+    const opt=document.createElement('option');
+    opt.value=d.nom;
+    opt.textContent=d.nom+(d.date?' (entretien '+new Date(d.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})+')':'');
+    sel.appendChild(opt);
+  });
+
+  // Restaure la sélection courante si elle existe toujours
+  if(current){
+    for(const o of sel.options){if(o.value===current){sel.value=current;break;}}
+  }
 }
 
 // ══ SIGNATURE UPLOAD ══
@@ -568,13 +590,13 @@ function loadDraft(){
     if(d.trainer)document.getElementById('trainer').value=d.trainer;
     if(d.date)document.getElementById('sdate').value=d.date;
     if(d.comments)for(const k in d.comments){const el=document.getElementById('c-'+k);if(el)el.value=d.comments[k];}
-    // restore trainee select after candidates load
     if(d.trainee){
       document.getElementById('trainee').value=d.trainee;
+      // On attend que les candidats validés soient chargés avant de sélectionner
       setTimeout(()=>{
         const sel=document.getElementById('trainee-select');
-        for(let o of sel.options){if(o.value===d.trainee){sel.value=d.trainee;break;}}
-      },2000);
+        for(const o of sel.options){if(o.value===d.trainee){sel.value=d.trainee;break;}}
+      },1500);
     }
     update();
   }catch(e){}
@@ -660,15 +682,20 @@ async function loadHistory(){
       <div class="item-score">${d.total}<span style="font-size:11px;color:var(--muted)">/50</span></div>
       <div class="item-verdict" style="color:${vColor};border-color:${vColor}">${d.verdict||'—'}</div>
       <div class="item-actions">
-        <button class="btn-sm load" onclick="loadFormation(${JSON.stringify(JSON.stringify(d))})">Charger</button>
-        <button class="btn-sm del" onclick="deleteFormation('${d.id}','${d.trainee||'?'}')">Suppr.</button>
+        <button class="btn-sm load" onclick="loadFormation('${d.id}')">Charger</button>
+        <button class="btn-sm del" onclick="deleteFormation('${d.id}','${(d.trainee||'?').replace(/'/g,"\\'")}')">Suppr.</button>
       </div>`;
       container.appendChild(row);
+      // ✅ On stocke dans une map pour y accéder proprement
+      entretienMap.set(d.id, d);
     });
   }catch(e){container.innerHTML=`<div class="list-empty" style="color:var(--red)">ERREUR : ${e.message}</div>`;}
 }
-function loadFormation(jsonStr){
-  const d=JSON.parse(jsonStr);
+
+// ✅ FIX : loadFormation reçoit un ID et récupère l'objet depuis la map
+function loadFormation(docId){
+  const d=entretienMap.get(docId);
+  if(!d){toast('Session introuvable en mémoire','err');return;}
   if(d.scores)for(const k in d.scores){S[k]=d.scores[k]||0;const el=document.getElementById(k);if(el)el.textContent=S[k];}
   if(d.trainer)document.getElementById('trainer').value=d.trainer;
   if(d.date)document.getElementById('sdate').value=d.date;
@@ -676,16 +703,21 @@ function loadFormation(jsonStr){
   if(d.trainee){
     document.getElementById('trainee').value=d.trainee;
     const sel=document.getElementById('trainee-select');
-    for(let o of sel.options){if(o.value===d.trainee){sel.value=d.trainee;break;}}
+    for(const o of sel.options){if(o.value===d.trainee){sel.value=d.trainee;break;}}
   }
   update();
   switchTab('formation',document.querySelectorAll('.tab')[0]);
   toast('Session chargée — '+d.trainee,'ok');
 }
+
 async function deleteFormation(docId,name){
   if(!confirm(`Supprimer la session de ${name} ?`))return;
-  try{await window._del(window._doc(window._db,'formations',docId));toast('Supprimé','info');loadHistory();}
-  catch(e){toast('Erreur','err');}
+  try{
+    await window._del(window._doc(window._db,'formations',docId));
+    entretienMap.delete(docId);
+    toast('Supprimé','info');
+    loadHistory();
+  }catch(e){toast('Erreur','err');}
 }
 
 // ══ ENTRETIENS ══
@@ -697,6 +729,7 @@ function setStatus(s){
     document.getElementById('pill-'+v).classList.toggle('active',v===s);
   });
 }
+
 async function saveEntretien(){
   if(!fbReady){toast('Firebase non connecté','err');return;}
   const nom=document.getElementById('e-nom').value.trim();
@@ -704,25 +737,34 @@ async function saveEntretien(){
   if(!currentEntretienStatus){toast('Choisis un statut','err');return;}
   const editId=document.getElementById('e-edit-id').value;
   const payload={
-    nom,date:document.getElementById('e-date').value,
+    nom,
+    date:document.getElementById('e-date').value,
     recruteur:document.getElementById('e-recruteur').value.trim(),
     status:currentEntretienStatus,
     notes:document.getElementById('e-notes').value.trim(),
     savedAt:new Date().toISOString()
   };
+  const lbl=document.getElementById('e-save-label');
+  lbl.innerHTML='<span class="spin"></span>';
   try{
     if(editId){
+      // ✅ FIX : mise à jour correcte du document existant
       await window._upd(window._doc(window._db,'entretiens',editId),payload);
       toast('Entretien mis à jour','ok');
     }else{
       await window._add(window._col(window._db,'entretiens'),payload);
       toast('Entretien enregistré','ok');
     }
+    lbl.textContent='⬆ \u00A0ENREGISTRER';
     clearEntretienForm();
-    loadEntretiens();
-    loadValidatedCandidates();
-  }catch(e){toast('Erreur : '+e.message,'err');}
+    // ✅ On recharge les entretiens ET on met à jour la liste des candidats validés
+    await loadEntretiens();
+  }catch(e){
+    lbl.textContent='⬆ \u00A0ENREGISTRER';
+    toast('Erreur : '+e.message,'err');
+  }
 }
+
 async function loadEntretiens(){
   if(!fbReady)return;
   const container=document.getElementById('e-list');
@@ -730,13 +772,18 @@ async function loadEntretiens(){
   try{
     const q=window._q(window._col(window._db,'entretiens'),window._ord('savedAt','desc'));
     const snap=await window._gets(q);
-    allEntretiens=[];snap.forEach(d=>allEntretiens.push({id:d.id,...d.data()}));
+    allEntretiens=[];
+    snap.forEach(d=>allEntretiens.push({id:d.id,...d.data()}));
     document.getElementById('e-count').textContent=allEntretiens.length+' entretien'+(allEntretiens.length!==1?'s':'');
     document.getElementById('badge-entretien').textContent=allEntretiens.length?`(${allEntretiens.length})`:'';
+    // ✅ FIX : on met à jour les candidats validés après chaque chargement
+    loadValidatedCandidates();
     renderEntretiens();
   }catch(e){container.innerHTML=`<div class="list-empty" style="color:var(--red)">ERREUR : ${e.message}</div>`;}
 }
+
 function filterEntretiens(f){eCurrentFilter=f;renderEntretiens();}
+
 function renderEntretiens(){
   const container=document.getElementById('e-list');
   const list=eCurrentFilter==='tous'?allEntretiens:allEntretiens.filter(d=>d.status===eCurrentFilter);
@@ -756,28 +803,42 @@ function renderEntretiens(){
     </div>
     <div class="item-verdict" style="color:${col};border-color:${col}">${lbl}</div>
     <div class="item-actions">
-      <button class="btn-sm edit" onclick="editEntretien(${JSON.stringify(JSON.stringify(d))})">Modifier</button>
-      <button class="btn-sm del" onclick="deleteEntretien('${d.id}','${d.nom||'?'}')">Suppr.</button>
+      <button class="btn-sm edit" onclick="editEntretien('${d.id}')">Modifier</button>
+      <button class="btn-sm del" onclick="deleteEntretien('${d.id}','${(d.nom||'?').replace(/'/g,"\\'")}')">Suppr.</button>
     </div>`;
     container.appendChild(row);
   });
 }
-function editEntretien(jsonStr){
-  const d=JSON.parse(jsonStr);
+
+// ✅ FIX PRINCIPAL : editEntretien reçoit un ID et récupère l'objet depuis allEntretiens
+function editEntretien(docId){
+  const d=allEntretiens.find(e=>e.id===docId);
+  if(!d){toast('Entretien introuvable','err');return;}
+
   document.getElementById('e-nom').value=d.nom||'';
   document.getElementById('e-date').value=d.date||'';
   document.getElementById('e-recruteur').value=d.recruteur||'';
   document.getElementById('e-notes').value=d.notes||'';
   document.getElementById('e-edit-id').value=d.id;
-  if(d.status)setStatus(d.status);
+
+  if(d.status) setStatus(d.status);
+
+  // Afficher le bandeau mode édition
+  document.getElementById('edit-banner').classList.add('visible');
+
   window.scrollTo({top:0,behavior:'smooth'});
   toast('Entretien chargé pour modification','info');
 }
+
 async function deleteEntretien(docId,name){
   if(!confirm(`Supprimer l'entretien de ${name} ?`))return;
-  try{await window._del(window._doc(window._db,'entretiens',docId));toast('Supprimé','info');loadEntretiens();loadValidatedCandidates();}
-  catch(e){toast('Erreur','err');}
+  try{
+    await window._del(window._doc(window._db,'entretiens',docId));
+    toast('Supprimé','info');
+    await loadEntretiens();
+  }catch(e){toast('Erreur','err');}
 }
+
 function clearEntretienForm(){
   document.getElementById('e-nom').value='';
   document.getElementById('e-date').valueAsDate=new Date();
@@ -785,8 +846,11 @@ function clearEntretienForm(){
   document.getElementById('e-notes').value='';
   document.getElementById('e-edit-id').value='';
   document.getElementById('e-status').value='';
+  document.getElementById('e-save-label').textContent='⬆ \u00A0ENREGISTRER';
   currentEntretienStatus='';
   ['valide','attente','refuse'].forEach(v=>document.getElementById('pill-'+v).classList.remove('active'));
+  // Cacher le bandeau mode édition
+  document.getElementById('edit-banner').classList.remove('visible');
 }
 
 // ══ PDF EXPORT ══
@@ -803,7 +867,6 @@ function exportPDF(){
 
   // HEADER
   r(0,0,W,36,dark);r(0,0,W,1.5,gold);
-  // Logo PNG dans PDF
   const logoImg=document.querySelector('.logo');
   if(logoImg && logoImg.complete && logoImg.naturalWidth>0){
     try{

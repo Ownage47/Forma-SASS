@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SASS — Panel URT v3</title>
+<title>SASS — Panel Entretien/Formation</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script type="module">
@@ -344,7 +344,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
   </svg>
   <div class="htext">
     <div class="h-org">SAN ANDREAS SECRET SERVICE</div>
-    <div class="h-title">PANEL URT v3</div>
+    <div class="h-title">PANEL SASS</div>
   </div>
   <div class="h-right">
     <div class="h-code">URT-F01</div>
@@ -480,7 +480,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
   ═══════════════════════════════════════ -->
   <div class="pane" id="pane-historique">
     <div class="list-header"><div class="list-count" id="h-count">—</div><button class="btn-refresh" onclick="loadHistory()">↻ ACTUALISER</button></div>
-    <input class="search-bar" id="h-search" placeholder="🔍  Rechercher un stagiaire, formateur, ID…" oninput="renderHistory()">
+    <input class="search-bar" id="h-search" placeholder="🔍  Rechercher un stagiaire, un agent, formateur, ID…" oninput="renderHistory()">
     <div id="h-list"><div class="list-empty"><span class="spin"></span></div></div>
   </div>
 
@@ -489,7 +489,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
   ═══════════════════════════════════════ -->
   <div class="pane" id="pane-stagiaires">
     <div class="list-header"><div class="list-count" id="st-count">—</div></div>
-    <input class="search-bar" id="st-search" placeholder="🔍  Rechercher un stagiaire…" oninput="renderStagiaires()">
+    <input class="search-bar" id="st-search" placeholder="🔍  Rechercher un stagiaire/agent…" oninput="renderStagiaires()">
     <div id="st-list"><div class="list-empty"><span class="spin"></span></div></div>
   </div>
 
@@ -512,7 +512,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min
     <span class="nav-badge" id="badge-historique" style="display:none"></span>
   </button>
   <button class="nav-item" id="nav-stagiaires" onclick="switchTab('stagiaires',this)">
-    <span class="nav-icon">👤</span><span class="nav-label">STAGIAIRES</span>
+    <span class="nav-icon">👤</span><span class="nav-label">STAGIAIRES/AGENTS</span>
   </button>
 </nav>
 
